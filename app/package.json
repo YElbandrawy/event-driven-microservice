@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongoose": "^8.13.1"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "kafkajs": "^2.2.4",
+    "mongodb": "^6.15.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9"
+  }
+}
