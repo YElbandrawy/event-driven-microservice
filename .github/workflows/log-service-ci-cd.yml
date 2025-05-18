@@ -47,8 +47,9 @@ jobs:
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          
           # Stop and remove existing containers
-          docker-compose down || true
+          docker-compose down -v || true
           
           # Create docker-compose.yml with strict resource limits
           cat > docker-compose.yml << 'EOL'
