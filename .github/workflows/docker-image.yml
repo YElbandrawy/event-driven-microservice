@@ -130,8 +130,8 @@ jobs:
               restart: unless-stopped
           
           volumes:
-            mongo-data:
             zookeeper-data:
+            zookeeper-log:
             kafka-data:
           EOL
           
