@@ -22,11 +22,15 @@ const consumeMessages = async () => {
         logHandler(log);
       },
     });
+    console.log('Consumer started successfully');
   } catch (err) {
-    console.error(
-      'Error connecting to the consumer or handling a message',
-      err
-    );
+    console.error('Error connecting to the consumer or topic not ready', err);
+    try {
+      await consumer.disconnect();
+    } catch (_) {}
+
+    console.log('Retrying in 10 seconds...');
+    setTimeout(consumeMessages, 10000);
   }
 };
 
