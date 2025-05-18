@@ -1,4 +1,14 @@
 services:
+  mongo:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper

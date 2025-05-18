@@ -18,7 +18,8 @@ const logSchema = mongoose.Schema({
   },
 });
 
-logSchema.index({ userId: 1, action: 1, createdAt: -1 });
+logSchema.index({ userId: 1 });
+logSchema.index({ action: 1 });
 
 const Log = mongoose.model('Log', logSchema);
 
