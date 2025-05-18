@@ -53,7 +53,7 @@ services:
       start_period: 10s
 
   app:
-    build: ./app
+    image: uosefeid/log-service:latest
     container_name: app
     ports:
       - '3000:3000'
@@ -67,7 +67,7 @@ services:
     restart: unless-stopped
 
   kafka_producer:
-    build: ./producer
+    image: uosefeid/kafka-producer:latest
     container_name: kafka_producer
     depends_on:
       app:
