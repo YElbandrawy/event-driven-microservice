@@ -19,7 +19,7 @@ const logSchema = mongoose.Schema({
 
 logSchema.index({ userId: 1 });
 logSchema.index({ action: 1 });
-logSchema.index({ createdAt: 1 }, { expireAfterSeconds: 4 });
+logSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 });
 
 const Log = mongoose.model('Log', logSchema);
 

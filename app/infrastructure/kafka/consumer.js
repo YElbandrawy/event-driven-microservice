@@ -24,7 +24,7 @@ const consumeMessages = async () => {
     });
   } catch (err) {
     console.error(
-      'Error connicting to the consumer or hundling a message',
+      'Error connecting to the consumer or handling a message',
       err
     );
   }
@@ -35,7 +35,7 @@ consumer.on(consumer.events.CRASH, async (event) => {
   try {
     await consumer.disconnect();
   } catch (err) {
-    console.log('unable to disconnict the consumer');
+    console.log('unable to disconnect the consumer');
   }
   console.log('reconnecting the consumer in 20 sec....');
   setTimeout(consumeMessages, 20000);
