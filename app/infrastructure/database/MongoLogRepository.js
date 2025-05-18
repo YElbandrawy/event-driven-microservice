@@ -14,12 +14,12 @@ const logSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    index: true,
   },
 });
 
 logSchema.index({ userId: 1 });
 logSchema.index({ action: 1 });
+logSchema.index({ createdAt: 1 }, { expireAfterSeconds: 4 });
 
 const Log = mongoose.model('Log', logSchema);
 
