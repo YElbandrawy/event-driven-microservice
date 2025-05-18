@@ -102,7 +102,7 @@ jobs:
                 - kafka-data:/var/lib/kafka/data
               healthcheck:
                 test: kafka-topics --bootstrap-server kafka:9092 --list || exit 1
-                interval: 10s
+                interval: 5s
                 timeout: 10s
                 retries: 5
                 start_period: 10s
