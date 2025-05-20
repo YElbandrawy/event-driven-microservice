@@ -49,7 +49,7 @@ jobs:
         script: |
           
           # Stop and remove existing containers
-          docker-compose down -v || true
+          docker-compose down || true
           
           # Create docker-compose.yml with strict resource limits
           cat > docker-compose.yml << 'EOL'
@@ -75,6 +75,7 @@ jobs:
               volumes:
                 - zookeeper-data:/var/lib/zookeeper/data
                 - zookeeper-log:/var/lib/zookeeper/log
+              restart: unless-stopped
               healthcheck:
                 test: echo stat | nc localhost 2181 || exit 1
                 interval: 10s
@@ -99,6 +100,7 @@ jobs:
                 KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
                 KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
                 KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+              restart: unless-stopped
               volumes:
                 - kafka-data:/var/lib/kafka/data
               healthcheck:
