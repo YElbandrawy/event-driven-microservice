@@ -1,6 +1,6 @@
 # Log Service
 
-> Access: **_54.84.21.25/api/v1/logs_**
+> Access: http://54.84.21.25/api/v1/logs
 
 A microservice-based logging system that processes and stores user activity logs using Kafka and MongoDB.
 

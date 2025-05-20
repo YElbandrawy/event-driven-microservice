@@ -63,6 +63,14 @@ jobs:
               environment:
                 MONGO_INITDB_ROOT_USERNAME: admin
                 MONGO_INITDB_ROOT_PASSWORD: password
+              deploy:
+                resources:
+                  limits:
+                    memory: 200M
+                    cpus: '0.3'
+              command: ["mongod", "--wiredTigerCacheSizeGB", "0.1"]
+              volumes:
+                - mongo-data:/data/db
           
             zookeeper:
               image: confluentinc/cp-zookeeper:latest
@@ -70,11 +78,17 @@ jobs:
               environment:
                 ZOOKEEPER_CLIENT_PORT: 2181
                 ZOOKEEPER_TICK_TIME: 2000
+                ZOOKEEPER_HEAP_OPTS: "-Xmx100m -Xms100m"
               ports:
                 - '2181:2181'
               volumes:
                 - zookeeper-data:/var/lib/zookeeper/data
                 - zookeeper-log:/var/lib/zookeeper/log
+              deploy:
+                resources:
+                  limits:
+                    memory: 150M
+                    cpus: '0.2'
               restart: unless-stopped
               healthcheck:
                 test: echo stat | nc localhost 2181 || exit 1
@@ -99,10 +113,18 @@ jobs:
                 KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
                 KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
                 KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-                KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+                KAFKA_HEAP_OPTS: "-Xmx200m -Xms200m"
+                KAFKA_LOG_RETENTION_HOURS: 24
+                KAFKA_LOG_SEGMENT_BYTES: 104857600
+                KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000
               restart: unless-stopped
               volumes:
                 - kafka-data:/var/lib/kafka/data
+              deploy:
+                resources:
+                  limits:
+                    memory: 250M
+                    cpus: '0.3'
               healthcheck:
                 test: kafka-topics --bootstrap-server kafka:9092 --list || exit 1
                 interval: 5s
@@ -116,27 +138,67 @@ jobs:
               ports:
                 - '80:3000'
               depends_on:
-                - kafka
-                - mongo
+                kafka:
+                  condition: service_healthy
               environment:
                 PORT: 3000
-                DATABASE_URL: mongodb://<db_username>:<db_password>@mongo:27017
+                DATABASE_URL: mongodb://admin:password@mongo:27017
                 DATABASE_USERNAME: admin
                 DATABASE_PASSWORD: password
+                NODE_OPTIONS: "--max-old-space-size=150"
+              deploy:
+                resources:
+                  limits:
+                    memory: 200M
+                    cpus: '0.2'
               restart: unless-stopped
 
             kafka_producer:
               image: ${{ secrets.DOCKERHUB_USERNAME }}/kafka-producer:latest
               container_name: kafka_producer
               depends_on:
-                - app
+                app:
+                  condition: service_started
+              environment:
+                NODE_OPTIONS: "--max-old-space-size=100"
+              deploy:
+                resources:
+                  limits:
+                    memory: 100M
+                    cpus: '0.1'
               restart: unless-stopped
           
           volumes:
             zookeeper-data:
             zookeeper-log:
             kafka-data:
+            mongo-data:
           EOL
+          
+          # Clean up unused Docker resources
+          docker system prune -af
           
           # Start the containers
           docker-compose up -d
+          
+          # Set up monitoring to restart if memory gets too high
+          cat > monitor.sh << 'EOL'
+          #!/bin/bash
+          
+          while true; do
+            # Check memory usage
+            MEM_USAGE=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
+            
+            if (( $(echo "$MEM_USAGE > 90" | bc -l) )); then
+              echo "Memory usage is high ($MEM_USAGE%). Restarting containers..."
+              docker-compose restart
+            fi
+            
+            sleep 300  # Check every 5 minutes
+          done
+          EOL
+          
+          chmod +x monitor.sh
+          
+          # Set up the monitor script to run in the background
+          nohup ./monitor.sh > monitor.log 2>&1 &
