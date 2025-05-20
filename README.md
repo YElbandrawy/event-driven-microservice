@@ -1,6 +1,6 @@
 # Log Service
 
-> Access: ***http://ec2-18-234-140-23.compute-1.amazonaws.com/api/v1/logs***
+> Access: **_54.84.21.25/api/v1/logs_**
 
 A microservice-based logging system that processes and stores user activity logs using Kafka and MongoDB.
 
@@ -101,7 +101,7 @@ log_service/
    - Deploy the application to the EC2 instance
    - Set up the necessary services (MongoDB, Kafka, ZooKeeper)
 
-5. Access the API at http://<_EC2-Public-IPv4-DNS_>/api/v1/logs
+5. Access the API at http://<_EC2-Public-IP_>/api/v1/logs
 
 ## Environment Variables
 
